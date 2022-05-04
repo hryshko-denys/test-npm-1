@@ -3,7 +3,7 @@
     "module": "esnext",
     "target": "es2019",
     "baseUrl": "./src",
-    "outDir": "./lib",
+    "outDir": ".",
     "declaration": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
