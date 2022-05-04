@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2019",
-    "outDir": "./lib",
+    "outDir": ".",
     "rootDir": ".",
     "declaration": true,
     "esModuleInterop": true,
