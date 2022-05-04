@@ -1,6 +1,6 @@
 {
   "name": "test-npm-den",
-  "version": "1.0.7",
+  "version": "1.0.9",
   "description": "Test",
   "main": "index.js",
   "types": "lib/index.d.ts",
