@@ -1,4 +1,4 @@
-import { ESolConfig } from './config';
+import { ESolConfig, ClusterType } from './config';
 import { PublicKey, Transaction, Keypair, Signer, TransactionInstruction, SystemProgram } from '@solana/web3.js';
 import { lamportsToSol } from './utils';
 import { getStakePoolAccount, addAssociatedTokenAccount, findWithdrawAuthorityProgramAddress } from './service/service';
@@ -6,7 +6,11 @@ import { StakePoolProgram } from './service/stakepool-program';
 import { DAO_STATE_LAYOUT, COMMUNITY_TOKEN_LAYOUT } from './service/layouts';
 
 export class ESol {
-  constructor(public readonly config: ESolConfig = new ESolConfig()) {}
+  public readonly config: ESolConfig;
+  
+  constructor(clusterType: ClusterType = 'testnet') {
+    this.config = new ESolConfig(clusterType);
+  }
 
   async depositSol(
     userAddress: PublicKey,
@@ -32,8 +36,8 @@ export class ESol {
     const instructions: TransactionInstruction[] = [];
 
     // Check user balance
-    const feeCostInBlockchain = 3000000;
-    let needForTransaction = feeCostInBlockchain;
+    const lamportsToLeftInWallet = 3000000;
+    let needForTransaction = lamportsToLeftInWallet;
 
     const daoCommunityTokenReceiverAccountRentSpace = await CONNECTION.getMinimumBalanceForRentExemption(165);
     if (!daoCommunityTokenReceiverAccount) {
