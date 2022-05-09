@@ -14,6 +14,9 @@ import {
   addAssociatedTokenAccount,
   findWithdrawAuthorityProgramAddress,
   getTokenAccount,
+  prepareWithdrawAccounts,
+  calcLamportsWithdrawAmount,
+  newStakeAccount,
 } from './service/service';
 import { StakePoolProgram } from './service/stakepool-program';
 import { DAO_STATE_LAYOUT, COMMUNITY_TOKEN_LAYOUT } from './service/layouts';
@@ -402,6 +405,232 @@ export class ESol {
     const transaction = new Transaction();
     instructions.forEach((instruction: any) => transaction.add(instruction));
     transaction.feePayer = solReceiver;
+    transaction.recentBlockhash = (await CONNECTION.getRecentBlockhash()).blockhash;
+    transaction.sign(...signers);
+
+    return transaction;
+  }
+
+  async withdrawSol(userAddress: PublicKey, lamports: number, stakeReceiver?: PublicKey, poolTokenAccount?: PublicKey) {
+    const CONNECTION = this.config.connection;
+    const stakePoolAddress = this.config.eSOLStakePoolAddress;
+    const stakePool = await getStakePoolAccount(CONNECTION, stakePoolAddress);
+
+    const poolAmount = solToLamports(lamports);
+
+    // dao part
+    const daoStateDtoInfo = await PublicKey.findProgramAddress(
+      [Buffer.from(this.config.seedPrefixDaoState), stakePoolAddress.toBuffer(), StakePoolProgram.programId.toBuffer()],
+      StakePoolProgram.programId,
+    );
+    const daoStateDtoPubkey = daoStateDtoInfo[0];
+
+    const daoStateDtoInfoAccount = await CONNECTION.getAccountInfo(daoStateDtoPubkey);
+
+    if (!daoStateDtoInfoAccount) {
+      throw Error("Didn't find dao state account");
+    }
+
+    const daoState = DAO_STATE_LAYOUT.decode(daoStateDtoInfoAccount!.data);
+    const isDaoEnabled = daoState.isEnabled;
+
+    if (!isDaoEnabled) {
+      throw Error('Dao is not enable'); // it should never happened!!!
+    }
+
+    if (!poolTokenAccount) {
+      poolTokenAccount = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
+        stakePool.account.data.poolMint,
+        userAddress,
+      );
+    }
+
+    const tokenAccount = await getTokenAccount(CONNECTION, poolTokenAccount, stakePool.account.data.poolMint);
+    if (!tokenAccount) {
+      throw new Error('Invalid token account');
+    }
+
+    // Check withdrawFrom balance
+    if (tokenAccount.amount.toNumber() < poolAmount) {
+      throw new Error(
+        `Not enough token balance to withdraw ${lamportsToSol(poolAmount)} pool tokens.
+        Maximum withdraw amount is ${lamportsToSol(tokenAccount.amount.toNumber())} pool tokens.`,
+      );
+    }
+
+    const withdrawAuthority = await findWithdrawAuthorityProgramAddress(StakePoolProgram.programId, stakePoolAddress);
+
+    // Construct transaction to withdraw from withdrawAccounts account list
+    const instructions: TransactionInstruction[] = [];
+    const userTransferAuthority = Keypair.generate();
+
+    const signers: Signer[] = [userTransferAuthority];
+
+    // dao
+    const communityTokenStakingRewardsInfo = await PublicKey.findProgramAddress(
+      [
+        Buffer.from(this.config.seedPrefixCommunityTokenStakingRewards),
+        stakePoolAddress.toBuffer(),
+        userAddress.toBuffer(),
+        StakePoolProgram.programId.toBuffer(),
+      ],
+      StakePoolProgram.programId,
+    );
+    const communityTokenStakingRewardsPubkey: any = communityTokenStakingRewardsInfo[0];
+    const communityTokenStakingRewardsAccount = await CONNECTION.getAccountInfo(communityTokenStakingRewardsPubkey);
+
+    //WE SHOULD CHECK NEXT PART IF USER WITHDRAW !!NOT!! ALL ESOL
+
+    // We can be sure that this account already exists, as it is created when you deposit.
+    // But there are some number of users who made a deposit before updating the code with DAO strategy,
+    // so here we create an account especially for them.
+    // {
+    const communityTokenDtoInfo = await PublicKey.findProgramAddress(
+      [
+        Buffer.from(this.config.seedPrefixCommunityToken),
+        stakePoolAddress.toBuffer(),
+        StakePoolProgram.programId.toBuffer(),
+      ],
+      StakePoolProgram.programId,
+    );
+    const communityTokenPubkey = communityTokenDtoInfo[0];
+    const communityTokenAccount = await CONNECTION.getAccountInfo(communityTokenPubkey);
+
+    if (!communityTokenAccount) {
+      throw Error('Community token is not exist'); // if isDaoEnabled -> error should NOT happened
+    }
+
+    const communityTokenInfo = COMMUNITY_TOKEN_LAYOUT.decode(communityTokenAccount!.data);
+    // check associatedTokenAccount for RENT 165 BYTES FOR RENTs
+    const daoCommunityTokenReceiverAccount = await addAssociatedTokenAccount(
+      CONNECTION,
+      userAddress,
+      communityTokenInfo.tokenMint,
+      instructions,
+    );
+    // }
+
+    // communityTokenStakingRewardsCounter
+    const communityTokenStakingRewardsCounterDtoInfo = await PublicKey.findProgramAddress(
+      [
+        Buffer.from(this.config.seedPrefixCommunityTokenStakingRewardsCounter),
+        stakePoolAddress.toBuffer(),
+        StakePoolProgram.programId.toBuffer(),
+      ],
+      StakePoolProgram.programId,
+    );
+    const communityStakingRewardsCounterPubkey = communityTokenStakingRewardsCounterDtoInfo[0];
+    const communityTokenStakingRewardsCounterAccount = await CONNECTION.getAccountInfo(
+      communityStakingRewardsCounterPubkey,
+    );
+
+    if (!communityTokenStakingRewardsCounterAccount) {
+      throw Error('Community token staking reward counter is not exist'); // if isDaoEnabled -> error should NOT happened
+    }
+
+    if (!communityTokenStakingRewardsAccount) {
+      // create CommunityTokenStakingRewards
+      instructions.push(
+        StakePoolProgram.createCommunityTokenStakingRewards({
+          stakePoolPubkey: stakePoolAddress,
+          ownerWallet: userAddress,
+          communityTokenStakingRewardsDTO: communityTokenStakingRewardsPubkey,
+          communityTokenStakingRewardsCounterDTO: communityStakingRewardsCounterPubkey,
+        }),
+      );
+    }
+
+    instructions.push(
+      Token.createApproveInstruction(
+        TOKEN_PROGRAM_ID,
+        poolTokenAccount,
+        userTransferAuthority.publicKey,
+        userAddress,
+        [],
+        poolAmount,
+      ),
+    );
+
+    const withdrawAccount: any = await prepareWithdrawAccounts(
+      CONNECTION,
+      stakePool.account.data,
+      stakePoolAddress,
+      poolAmount,
+    );
+
+    if (!withdrawAccount) {
+      throw Error(`Not available at the moment. Please try again later. Sorry for the inconvenience.`);
+    }
+    const availableSol = lamportsToSol(withdrawAccount.poolAmount);
+
+    if (withdrawAccount.poolAmount < poolAmount) {
+      throw Error(
+        `Currently, you can undelegate only ${availableSol} SOL within one transaction due to delayed unstake limitations. Please unstake the desired amount in few transactions. Note that you will be able to track your unstaked SOL in the “Wallet” tab as a summary of transactions!.`,
+      );
+    }
+
+    const solWithdrawAmount = Math.ceil(calcLamportsWithdrawAmount(stakePool.account.data, withdrawAccount.poolAmount));
+
+    let infoMsg = `Withdrawing ◎${solWithdrawAmount},
+    from stake account ${withdrawAccount.stakeAddress?.toBase58()}`;
+
+    if (withdrawAccount.voteAddress) {
+      infoMsg = `${infoMsg}, delegated to ${withdrawAccount.voteAddress?.toBase58()}`;
+    }
+
+    let stakeToReceive: any;
+    let numberOfStakeAccounts = 1;
+    let totalRentFreeBalances = 0;
+
+    function incrementStakeAccount() {
+      numberOfStakeAccounts++;
+    }
+
+    const stakeReceiverAccountBalance = await CONNECTION.getMinimumBalanceForRentExemption(StakeProgram.space);
+
+    const stakeAccountPubkey = await newStakeAccount(
+      CONNECTION,
+      userAddress,
+      instructions,
+      stakeReceiverAccountBalance,
+      numberOfStakeAccounts,
+      incrementStakeAccount,
+    );
+    totalRentFreeBalances += stakeReceiverAccountBalance;
+    stakeToReceive = stakeAccountPubkey;
+    stakeReceiver = stakeAccountPubkey;
+
+    instructions.push(
+      StakePoolProgram.withdrawStakeWithDao({
+        daoCommunityTokenReceiverAccount,
+        communityTokenStakingRewards: communityTokenStakingRewardsPubkey,
+        ownerWallet: userAddress,
+        communityTokenPubkey,
+        stakePool: stakePoolAddress,
+        validatorList: stakePool.account.data.validatorList,
+        validatorStake: withdrawAccount.stakeAddress,
+        destinationStake: stakeToReceive,
+        destinationStakeAuthority: userAddress,
+        sourceTransferAuthority: userTransferAuthority.publicKey,
+        sourcePoolAccount: poolTokenAccount,
+        managerFeeAccount: stakePool.account.data.managerFeeAccount,
+        poolMint: stakePool.account.data.poolMint,
+        poolTokens: withdrawAccount.poolAmount,
+        withdrawAuthority,
+      }),
+    );
+
+    const deactivateTransaction = StakeProgram.deactivate({
+      stakePubkey: stakeToReceive,
+      authorizedPubkey: userAddress,
+    });
+    instructions.push(...deactivateTransaction.instructions);
+
+    const transaction = new Transaction();
+    instructions.forEach((instruction: any) => transaction.add(instruction));
+    transaction.feePayer = userAddress;
     transaction.recentBlockhash = (await CONNECTION.getRecentBlockhash()).blockhash;
     transaction.sign(...signers);
 
