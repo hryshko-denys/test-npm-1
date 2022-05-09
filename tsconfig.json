@@ -2,8 +2,8 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2019",
-    "rootDir": "./src",
-    "outDir": "./lib",
+    "rootDir": ".",
+    "outDir": "./stake-pool-sdk",
     "declaration": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -14,5 +14,5 @@
     "noImplicitAny": false
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "lib"],
+  "exclude": ["node_modules"],
 }
