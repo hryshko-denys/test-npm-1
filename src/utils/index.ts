@@ -18,4 +18,9 @@ function lamportsToSol(lamports: number | BN): number {
   return signMultiplier * parseFloat(solString);
 }
 
-export { lamportsToSol };
+function solToLamports(amount: number): number {
+  if (Number.isNaN(amount)) return Number(0);
+  return Number(amount * LAMPORTS_PER_SOL);
+}
+
+export { lamportsToSol, solToLamports };

@@ -1,6 +1,6 @@
 import { PublicKey, Connection, AccountInfo, TransactionInstruction } from '@solana/web3.js';
 import { Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { StakePool, STAKE_POOL_LAYOUT } from '../layouts/index';
+import { StakePool, STAKE_POOL_LAYOUT, ACCOUNT_LAYOUT } from '../layouts/index';
 
 const FAILED_TO_FIND_ACCOUNT = 'Failed to find account';
 const INVALID_ACCOUNT_OWNER = 'Invalid account owner';
@@ -94,4 +94,23 @@ async function findWithdrawAuthorityProgramAddress(programId: PublicKey, stakePo
   return publicKey;
 }
 
-export { getStakePoolAccount, addAssociatedTokenAccount, findWithdrawAuthorityProgramAddress };
+async function getTokenAccount(connection: Connection, tokenAccountAddress: PublicKey, expectedTokenMint: PublicKey) {
+  try {
+    const account = await connection.getAccountInfo(tokenAccountAddress);
+    if (!account) {
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error(`Invalid account ${tokenAccountAddress.toBase58()}`);
+    }
+
+    const tokenAccount = ACCOUNT_LAYOUT.decode(account.data);
+    if (tokenAccount.mint?.toBase58() !== expectedTokenMint.toBase58()) {
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error(`Invalid token mint for ${tokenAccountAddress}, expected mint is ${expectedTokenMint}`);
+    }
+    return tokenAccount;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export { getStakePoolAccount, addAssociatedTokenAccount, findWithdrawAuthorityProgramAddress, getTokenAccount };
