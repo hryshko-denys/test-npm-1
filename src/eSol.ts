@@ -239,7 +239,7 @@ export class ESol {
     const stakeReceiverAccountBalance = await CONNECTION.getMinimumBalanceForRentExemption(StakeProgram.space);
     const rateOfExchange = stakePool.account.data.rateOfExchange;
     const rate = rateOfExchange ? rateOfExchange.numerator.toNumber() / rateOfExchange.denominator.toNumber() : 1;
-    let solToWithdraw = poolAmount * rate;
+    const solToWithdraw = poolAmount * rate;
 
     if (reserveStake?.lamports || reserveStake?.lamports === 0) {
       const availableAmount = reserveStake?.lamports - stakeReceiverAccountBalance;

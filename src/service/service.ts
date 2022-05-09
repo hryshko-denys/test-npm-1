@@ -109,7 +109,7 @@ async function getTokenAccount(connection: Connection, tokenAccountAddress: Publ
     }
     return tokenAccount;
   } catch (error) {
-    console.log(error);
+    // console.error(error)
   }
 }
 
