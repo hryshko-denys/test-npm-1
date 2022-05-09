@@ -481,7 +481,7 @@ export class ESol {
     const communityTokenStakingRewardsPubkey: any = communityTokenStakingRewardsInfo[0];
     const communityTokenStakingRewardsAccount = await CONNECTION.getAccountInfo(communityTokenStakingRewardsPubkey);
 
-    //WE SHOULD CHECK NEXT PART IF USER WITHDRAW !!NOT!! ALL ESOL
+    // WE SHOULD CHECK NEXT PART IF USER WITHDRAW !!NOT!! ALL ESOL
 
     // We can be sure that this account already exists, as it is created when you deposit.
     // But there are some number of users who made a deposit before updating the code with DAO strategy,

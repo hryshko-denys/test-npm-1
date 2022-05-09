@@ -178,16 +178,16 @@ async function prepareWithdrawAccounts(
   const validatorListAcc = await connection.getAccountInfo(stakePool.validatorList);
   const validatorList = VALIDATOR_LIST_LAYOUT.decode(validatorListAcc!.data) as ValidatorList;
 
-  if (!validatorList?.validators || validatorList?.validators.length == 0) {
+  if (!validatorList?.validators || validatorList?.validators.length === 0) {
     throw new Error('No accounts found');
   }
 
-  let accounts = [] as Array<{
+  let accounts = [] as {
     type: 'preferred' | 'active' | 'transient' | 'reserve';
     voteAddress?: PublicKey | undefined;
     stakeAddress: PublicKey;
     lamports: number;
-  }>;
+  }[];
 
   // Prepare accounts
   for (const validator of validatorList.validators) {
@@ -204,7 +204,7 @@ async function prepareWithdrawAccounts(
     if (!validator.activeStakeLamports.isZero()) {
       const isPreferred =
         stakePool.preferredWithdrawValidatorVoteAddress &&
-        stakePool.preferredWithdrawValidatorVoteAddress!.toBase58() == validator.voteAccountAddress.toBase58();
+        stakePool.preferredWithdrawValidatorVoteAddress!.toBase58() === validator.voteAccountAddress.toBase58();
       accounts.push({
         type: isPreferred ? 'preferred' : 'active',
         voteAddress: validator.voteAccountAddress,
@@ -245,11 +245,11 @@ async function prepareWithdrawAccounts(
   // Prepare the list of accounts to withdraw from
   // const withdrawFrom: WithdrawAccount[] = [];
   let withdrawFrom;
-  let remainingAmount = amount;
+  const remainingAmount = amount;
 
   // for (const type of ["preferred", "active", "transient", "reserve"]) {
   for (const type of ['active']) {
-    const filteredAccounts = accounts.filter((a) => a.type == type);
+    const filteredAccounts = accounts.filter((a) => a.type === type);
 
     for (const { stakeAddress, voteAddress, lamports } of filteredAccounts) {
       let availableForWithdrawal = Math.floor(calcPoolTokensForDeposit(stakePool, lamports));
@@ -267,14 +267,14 @@ async function prepareWithdrawAccounts(
 
       // Those accounts will be withdrawn completely with `claim` instruction
       withdrawFrom = { stakeAddress, voteAddress, poolAmount };
-      //new
+      // new
       break;
       // remainingAmount -= poolAmount;
       // if (remainingAmount == 0) {
       //   break;
       // }
     }
-    if (remainingAmount == 0) {
+    if (remainingAmount === 0) {
       break;
     }
   }
@@ -333,7 +333,7 @@ async function newStakeAccount(
       fromPubkey: feePayer,
       newAccountPubkey: stakeReceiverPubkey,
       basePubkey: feePayer,
-      seed: seed,
+      seed,
       lamports,
       space: StakeProgram.space,
       programId: StakeProgram.programId,
