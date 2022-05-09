@@ -1,6 +1,6 @@
-# <p align="center"><a href="https://marinade.finance/"><img src="https://raw.githubusercontent.com/marinade-finance/liquid-staking-program/main/Docs/img/MNDE.png" height="100" alt="Marinade"></a>
-![Alt text](src/logo/esol.svg?raw=true "Title")
+# <p align="center"><a href="https://eversol.one/">
 
-# marin
+![Esol logo](src/logo/esol.svg?raw=true 'Eversol')
+</a>
 
-# My Awesome Greeter
+# Eversol Stake Pool SDK
