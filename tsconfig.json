@@ -3,7 +3,7 @@
     "module": "esnext",
     "target": "es2019",
     "rootDir": ".",
-    "outDir": "./lib",
+    "outDir": "./lib/src",
     "declaration": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -13,5 +13,6 @@
     "resolveJsonModule": true,
     "noImplicitAny": false
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["./lib"]
 }
