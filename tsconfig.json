@@ -2,8 +2,8 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2019",
-    "rootDir": ".",
-    "outDir": "./lib/src",
+    "rootDir": "./src",
+    "outDir": "./lib",
     "declaration": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -14,5 +14,4 @@
     "noImplicitAny": false
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["./lib"]
 }
