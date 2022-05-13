@@ -8,6 +8,8 @@
 
 # Eversol Stake Pool SDK
 
+Eversol is a liquid staking protocol built on Solana. Eversol's main concept is to dedicate a percentage of the pool rewards (currently, 7% in the proposed scheme of Fees and Rewards Distribution) to the Stake Pool's Treasury, to fund the best projects being built on Solana. Unlike other stake pools, we will directly facilitate and boost the DeFi ecosystem by helping new apps and products come to life!
+
 ## Installation
 
 ```bash
@@ -22,10 +24,10 @@ Import the main client class ESol and initialize it with the desired cluster typ
 import { ESol } from '@eversol/eversol-ts-sdk';
 
 // initializes for mainnet-beta
-const eSol = new Socean('mainnet-beta');
+const eSol = new ESol('mainnet-beta');
 
 // or for testnet
-const eSol = new Socean(); // or give 'testnet' as the argument
+const eSol = new ESol(); // or give 'testnet' as the argument
 ```
 
 ### Deposit SOL Transaction

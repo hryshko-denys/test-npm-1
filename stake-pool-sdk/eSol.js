@@ -9,7 +9,7 @@ export class ESol {
     constructor(clusterType = 'testnet') {
         this.config = new ESolConfig(clusterType);
     }
-    async depositSol(userAddress, lamports, poolTokenReceiverAccount, daoCommunityTokenReceiverAccount, referrerTokenAccount) {
+    async depositSolTransaction(userAddress, lamports, poolTokenReceiverAccount, daoCommunityTokenReceiverAccount, referrerTokenAccount) {
         const CONNECTION = this.config.connection;
         const userSolBalance = await CONNECTION.getBalance(userAddress, 'confirmed');
         if (userSolBalance < lamports) {
@@ -125,13 +125,13 @@ export class ESol {
         transaction.sign(...signers);
         return transaction;
     }
-    async unDelegateSol(userAddress, lamports, solWithdrawAuthority) {
+    async unDelegateSolTransaction(userAddress, solAmount, solWithdrawAuthority) {
         const CONNECTION = this.config.connection;
         const tokenOwner = userAddress;
         const solReceiver = userAddress;
         const stakePoolAddress = this.config.eSOLStakePoolAddress;
         const stakePool = await getStakePoolAccount(CONNECTION, stakePoolAddress);
-        const poolAmount = solToLamports(lamports);
+        const poolAmount = solToLamports(solAmount);
         // dao part
         const daoStateDtoInfo = await PublicKey.findProgramAddress([Buffer.from(this.config.seedPrefixDaoState), stakePoolAddress.toBuffer(), StakePoolProgram.programId.toBuffer()], StakePoolProgram.programId);
         const daoStateDtoPubkey = daoStateDtoInfo[0];
@@ -251,12 +251,12 @@ export class ESol {
         transaction.sign(...signers);
         return transaction;
     }
-    async withdrawSol(userAddress, lamports, stakeReceiver, poolTokenAccount) {
+    async withdrawSolTransaction(userAddress, solAmount, stakeReceiver, poolTokenAccount) {
         var _a, _b;
         const CONNECTION = this.config.connection;
         const stakePoolAddress = this.config.eSOLStakePoolAddress;
         const stakePool = await getStakePoolAccount(CONNECTION, stakePoolAddress);
-        const poolAmount = solToLamports(lamports);
+        const poolAmount = solToLamports(solAmount);
         // dao part
         const daoStateDtoInfo = await PublicKey.findProgramAddress([Buffer.from(this.config.seedPrefixDaoState), stakePoolAddress.toBuffer(), StakePoolProgram.programId.toBuffer()], StakePoolProgram.programId);
         const daoStateDtoPubkey = daoStateDtoInfo[0];
