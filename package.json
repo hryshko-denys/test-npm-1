@@ -1,6 +1,6 @@
 {
   "name": "test-npm-den",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "Test",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/hryshko-denys/test-npm-1.git"
   },
-  "keywords": [],
+  "keywords": ["Eversol", "Solana"],
   "author": "",
   "license": "ISC",
   "bugs": {
