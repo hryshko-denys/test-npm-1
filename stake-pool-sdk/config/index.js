@@ -1,4 +1,4 @@
-import { PublicKey, Connection } from '@solana/web3.js';
+import { PublicKey, Connection, clusterApiUrl } from '@solana/web3.js';
 import { StakePoolProgram } from '../service/stakepool-program';
 const TESTNET_PROVIDER_URL = 'https://api.testnet.solana.com';
 const MAINNET_PROVIDER_URL = 'https://api.mainnet-beta.solana.com';
@@ -13,16 +13,17 @@ export class ESolConfig {
         this.seedPrefixCommunityTokenStakingRewards = 'c_t_staking_rewards';
         this.seedPrefixCommunityTokenStakingRewardsCounter = 'c_t_staking_rewards_counter';
         this.publicKey = null;
+        console.log(clusterType, "clusterType");
+        const API_ENDPOINT = clusterApiUrl(clusterType);
+        this.connection = new Connection(API_ENDPOINT);
         switch (clusterType) {
             case 'testnet':
                 this.eSOLStakePoolAddress = new PublicKey(TESTNET_STAKEPOOL_ACCOUNT);
                 this.eSOLProgramId = new PublicKey(TESTNET_STAKEPOOL_PROGRAM_ID);
-                this.connection = new Connection(TESTNET_PROVIDER_URL);
                 break;
             case 'mainnet-beta':
                 this.eSOLStakePoolAddress = new PublicKey(MAINNET_STAKEPOOL_ACCOUNT);
                 this.eSOLProgramId = new PublicKey(MAINNET_STAKEPOOL_PROGRAM_ID);
-                this.connection = new Connection(MAINNET_PROVIDER_URL);
                 StakePoolProgram.changeProgramId('EverSFw9uN5t1V8kS3ficHUcKffSjwpGzUSGd7mgmSks');
                 break;
             default:

@@ -15,4 +15,7 @@
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"],
+  "rules": {
+    "no-console": false //Disable for typescript
+  },
 }
