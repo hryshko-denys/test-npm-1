@@ -478,6 +478,7 @@ export class StakePoolProgram {
   static stakeProgramId = StakeProgram.programId;
 
   static changeProgramId(id: string) {
+    console.log(id, "change id")
     this.programId = new PublicKey(id);
   }
 

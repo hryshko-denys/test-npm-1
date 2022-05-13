@@ -1,5 +1,5 @@
-import { PublicKey, Connection } from '@solana/web3.js';
-export declare type ClusterType = "mainnet-beta" | "testnet";
+import { PublicKey } from '@solana/web3.js';
+export declare type ClusterType = 'mainnet-beta' | 'testnet';
 export declare class ESolConfig {
     eSOLProgramId: PublicKey;
     eSOLStakePoolAddress: PublicKey;
@@ -7,7 +7,7 @@ export declare class ESolConfig {
     seedPrefixCommunityToken: string;
     seedPrefixCommunityTokenStakingRewards: string;
     seedPrefixCommunityTokenStakingRewardsCounter: string;
-    connection: Connection;
+    connection: any;
     publicKey: PublicKey | null;
     constructor(clusterType: ClusterType);
 }
