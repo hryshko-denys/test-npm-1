@@ -1,6 +1,6 @@
 {
   "name": "test-npm-den",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "Test",
   "main": "index.js",
   "scripts": {
