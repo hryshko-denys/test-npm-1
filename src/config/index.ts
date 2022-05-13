@@ -1,6 +1,7 @@
 import { PublicKey, Connection } from '@solana/web3.js';
 
-const DEFAULT_PROVIDER_URL = 'https://api.testnet.solana.com';
+const TESTNET_PROVIDER_URL = 'https://api.testnet.solana.com';
+const MAINNET_PROVIDER_URL = 'https://api.mainnet-beta.solana.com';
 
 export type ClusterType = "mainnet-beta" | "testnet";
 
@@ -18,7 +19,7 @@ export class ESolConfig {
   seedPrefixCommunityTokenStakingRewards = 'c_t_staking_rewards';
   seedPrefixCommunityTokenStakingRewardsCounter = 'c_t_staking_rewards_counter';
 
-  connection = new Connection(DEFAULT_PROVIDER_URL);
+  connection: any;
   publicKey: PublicKey | null = null;
 
   constructor(clusterType: ClusterType) {
@@ -26,10 +27,12 @@ export class ESolConfig {
       case "testnet":
         this.eSOLStakePoolAddress = new PublicKey(TESTNET_STAKEPOOL_ACCOUNT);
         this.eSOLProgramId = new PublicKey(TESTNET_STAKEPOOL_PROGRAM_ID);
+        this.connection = new Connection(TESTNET_PROVIDER_URL);
         break;
       case "mainnet-beta":
         this.eSOLStakePoolAddress = new PublicKey(MAINNET_STAKEPOOL_ACCOUNT);
         this.eSOLProgramId = new PublicKey(MAINNET_STAKEPOOL_PROGRAM_ID);
+        this.connection = new Connection(MAINNET_PROVIDER_URL);
         break;
       default:
         throw new Error("clusterType must be specified");
