@@ -34,10 +34,6 @@ export class ESol {
         if (userSolBalance < lamports + needForTransaction) {
             lamports -= needForTransaction;
         }
-        console.log(this.config.eSOLStakePoolAddress, "eSOLStakePoolAddress");
-        console.log(this.config.eSOLProgramId, "eSOLProgramId");
-        console.log(stakePoolAddress, "stakePoolAddress");
-        console.log(StakePoolProgram.programId, "StakePoolProgram.programId");
         // Check dao stake accounts
         const seedPrefixDaoState = this.config.seedPrefixDaoState;
         const daoStateDtoInfo = await PublicKey.findProgramAddress([Buffer.from(seedPrefixDaoState), stakePoolAddress.toBuffer(), StakePoolProgram.programId.toBuffer()], StakePoolProgram.programId);

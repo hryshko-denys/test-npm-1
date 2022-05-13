@@ -1,5 +1,5 @@
 import { PublicKey, Connection, AccountInfo, TransactionInstruction } from '@solana/web3.js';
-import { StakePool } from '../layouts/index';
+import { StakePool } from "./layouts";
 export interface StakePoolAccount {
     pubkey: PublicKey;
     account: AccountInfo<StakePool>;

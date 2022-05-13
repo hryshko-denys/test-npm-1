@@ -13,7 +13,6 @@ export class ESolConfig {
         this.seedPrefixCommunityTokenStakingRewards = 'c_t_staking_rewards';
         this.seedPrefixCommunityTokenStakingRewardsCounter = 'c_t_staking_rewards_counter';
         this.publicKey = null;
-        console.log(clusterType, "clusterType");
         const API_ENDPOINT = clusterApiUrl(clusterType);
         this.connection = new Connection(API_ENDPOINT);
         switch (clusterType) {
@@ -27,7 +26,7 @@ export class ESolConfig {
                 StakePoolProgram.changeProgramId('EverSFw9uN5t1V8kS3ficHUcKffSjwpGzUSGd7mgmSks');
                 break;
             default:
-                throw new Error('clusterType must be specified');
+                throw new Error('clusterType must be testnet or mainnet-beta');
         }
     }
 }

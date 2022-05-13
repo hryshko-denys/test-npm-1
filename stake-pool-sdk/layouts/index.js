@@ -14,12 +14,6 @@ export const ACCOUNT_LAYOUT = struct([
     u32("closeAuthorityOption"),
     publicKey("closeAuthority"),
 ]);
-export var AccountType;
-(function (AccountType) {
-    AccountType[AccountType["Uninitialized"] = 0] = "Uninitialized";
-    AccountType[AccountType["StakePool"] = 1] = "StakePool";
-    AccountType[AccountType["ValidatorList"] = 2] = "ValidatorList";
-})(AccountType || (AccountType = {}));
 export const DAO_STATE_LAYOUT = struct([bool("isEnabled")]);
 export const COMMUNITY_TOKEN_LAYOUT = struct([publicKey("tokenMint")]);
 export const STAKE_POOL_LAYOUT = struct([
