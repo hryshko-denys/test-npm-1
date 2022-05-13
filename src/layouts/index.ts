@@ -1,4 +1,5 @@
 import { publicKey, struct, u32, u64, u8, option, vec, bool } from "@project-serum/borsh";
+import { StakePool } from "../service/layouts"
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
 
@@ -52,49 +53,6 @@ export const ACCOUNT_LAYOUT = struct<TokenAccount>([
   u32("closeAuthorityOption"),
   publicKey("closeAuthority"),
 ]);
-
-export enum AccountType {
-  Uninitialized,
-  StakePool,
-  ValidatorList,
-}
-
-export interface StakePool {
-  accountType: AccountType;
-  manager: PublicKey;
-  staker: PublicKey;
-  stakeDepositAuthority: PublicKey;
-  stakeWithdrawBumpSeed: number;
-  validatorList: PublicKey;
-  reserveStake: PublicKey;
-  poolMint: PublicKey;
-  managerFeeAccount: PublicKey;
-  tokenProgramId: PublicKey;
-  totalLamports: BN;
-  poolTokenSupply: BN;
-  lastUpdateEpoch: BN;
-  lockup: Lockup;
-  epochFee: Fee;
-  nextEpochFee?: Fee | undefined;
-  preferredDepositValidatorVoteAddress?: PublicKey | undefined;
-  preferredWithdrawValidatorVoteAddress?: PublicKey | undefined;
-  stakeDepositFee: Fee;
-  stakeWithdrawalFee: Fee;
-  nextWithdrawalFee?: Fee | undefined;
-  stakeReferralFee: number;
-  solDepositAuthority?: PublicKey | undefined;
-  solDepositFee: Fee;
-  solReferralFee: number;
-  solWithdrawAuthority?: PublicKey | undefined;
-  solWithdrawalFee: Fee;
-  nextSolWithdrawalFee?: Fee | undefined;
-  lastEpochPoolTokenSupply: BN;
-  lastEpochTotalLamports: BN;
-  rateOfExchange?: RateOfExchange | undefined;
-  treasuryFeeAccount: PublicKey;
-  treasuryFee: Fee;
-  totalLamportsLiquidity: BN;
-}
 
 export const DAO_STATE_LAYOUT = struct<DaoState>([bool("isEnabled")]);
 export const COMMUNITY_TOKEN_LAYOUT = struct<CommunityToken>([publicKey("tokenMint")]);

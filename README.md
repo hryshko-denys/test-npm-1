@@ -26,8 +26,8 @@ import { ESol } from '@eversol/eversol-ts-sdk';
 // initializes for mainnet-beta
 const eSol = new ESol('mainnet-beta');
 
-// or for testnet
-const eSol = new ESol(); // or give 'testnet' as the argument
+// initializes for testnet
+const eSol = new ESol('testnet');
 ```
 
 ### Deposit SOL Transaction
@@ -52,11 +52,11 @@ const instantUnstakeTransaction = await eSol.unDelegateSolTransaction(userAddres
 
 ### Classic delayed unstake eSOL Transaction
 
-Skip the basic Solana cool-down period and undelegate stake instantly. If the feature is not available (meaning there is not enough liquidity/reserve in the pool to cover instant unstaking), please use the standard Unstake:
+Your stake will be deactivated with the beginning of a new epoch. Once the stake is inactive, feel free to withdraw the tokens within your wallet, in compliance with regular Solana staking terms.
 
 ```ts
 ...
-const instantUnstakeTransaction = await eSol.unDelegateSolTransaction(userAddress, amountLamports)
+const delayedUnstakeTransaction = await eSol.withdrawSolTransaction(userAddress, amountLamports)
 // than sign and send the `transaction`
 ```
 

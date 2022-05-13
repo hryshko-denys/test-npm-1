@@ -8,13 +8,14 @@ import {
 } from '@solana/web3.js';
 import { Token, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import {
-  StakePool,
   STAKE_POOL_LAYOUT,
   ACCOUNT_LAYOUT,
   VALIDATOR_LIST_LAYOUT,
   ValidatorStakeInfoStatus,
   ValidatorList,
 } from '../layouts/index';
+import { StakePool } from "./layouts"
+
 import { findTransientStakeProgramAddress } from './program-address';
 import { StakePoolProgram } from './stakepool-program';
 

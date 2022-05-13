@@ -24,10 +24,9 @@ export class ESolConfig {
   publicKey: PublicKey | null = null;
 
   constructor(clusterType: ClusterType) {
-    console.log(clusterType, "clusterType")
     const API_ENDPOINT = clusterApiUrl(clusterType);
     this.connection = new Connection(API_ENDPOINT);
-    
+
     switch (clusterType) {
       case 'testnet':
         this.eSOLStakePoolAddress = new PublicKey(TESTNET_STAKEPOOL_ACCOUNT);
@@ -40,7 +39,7 @@ export class ESolConfig {
         StakePoolProgram.changeProgramId('EverSFw9uN5t1V8kS3ficHUcKffSjwpGzUSGd7mgmSks');
         break;
       default:
-        throw new Error('clusterType must be specified');
+        throw new Error('clusterType must be testnet or mainnet-beta');
     }
   }
 }
