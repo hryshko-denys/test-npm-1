@@ -253,7 +253,6 @@ export const toBuffer = (arr) => {
  */
 export class StakePoolProgram {
     static changeProgramId(id) {
-        console.log(id, "change id");
         this.programId = new PublicKey(id);
     }
     static initialize(params) {
