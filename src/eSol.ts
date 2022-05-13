@@ -29,7 +29,7 @@ export class ESol {
     this.config = new ESolConfig(clusterType);
   }
 
-  async depositSol(
+  async depositSolTransaction(
     userAddress: PublicKey,
     lamports: number,
     poolTokenReceiverAccount?: PublicKey,
@@ -208,7 +208,7 @@ export class ESol {
     return transaction;
   }
 
-  async unDelegateSol(userAddress: PublicKey, lamports: number, solWithdrawAuthority?: PublicKey) {
+  async unDelegateSolTransaction(userAddress: PublicKey, solAmount: number, solWithdrawAuthority?: PublicKey) {
     const CONNECTION = this.config.connection;
     const tokenOwner = userAddress;
     const solReceiver = userAddress;
@@ -216,7 +216,7 @@ export class ESol {
     const stakePoolAddress = this.config.eSOLStakePoolAddress;
     const stakePool = await getStakePoolAccount(CONNECTION, stakePoolAddress);
 
-    const poolAmount = solToLamports(lamports);
+    const poolAmount = solToLamports(solAmount);
 
     // dao part
     const daoStateDtoInfo = await PublicKey.findProgramAddress(
@@ -411,12 +411,12 @@ export class ESol {
     return transaction;
   }
 
-  async withdrawSol(userAddress: PublicKey, lamports: number, stakeReceiver?: PublicKey, poolTokenAccount?: PublicKey) {
+  async withdrawSolTransaction(userAddress: PublicKey, solAmount: number, stakeReceiver?: PublicKey, poolTokenAccount?: PublicKey) {
     const CONNECTION = this.config.connection;
     const stakePoolAddress = this.config.eSOLStakePoolAddress;
     const stakePool = await getStakePoolAccount(CONNECTION, stakePoolAddress);
 
-    const poolAmount = solToLamports(lamports);
+    const poolAmount = solToLamports(solAmount);
 
     // dao part
     const daoStateDtoInfo = await PublicKey.findProgramAddress(
